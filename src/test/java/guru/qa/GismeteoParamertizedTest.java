@@ -1,5 +1,6 @@
 package guru.qa;
 
+import com.codeborne.selenide.CollectionCondition;
 import com.codeborne.selenide.Configuration;
 import guru.qa.data.Tabs;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,6 +10,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +38,7 @@ public class GismeteoParamertizedTest {
 
     @ParameterizedTest (name = "При поиске города {0} должен быть заголовок {1}")
     @Tags({@Tag("CRITICAL"), @Tag("UI_TEST")})
-    public void Calc(String city, String header) {
+    public void findWeatherInCity(String city, String header) {
         $(".input").setValue(city);
         sleep(1000);
         $(".input").pressEnter();
@@ -58,4 +60,13 @@ public class GismeteoParamertizedTest {
         $$(".header-subnav-menu .header-subnav-link").filter(visible).shouldHave(texts(buttons));
     }
 
+    @ValueSource(
+            strings = {"Новосибирск", "Ижевск"}
+    )
+    @ParameterizedTest(name = "При вводе в поиск название города {0} должно быть предложено не менее 8 вариантов для выбора")
+    @Tags({@Tag("MAJOR"), @Tag("UI_TEST")})
+    void searchCity(String city) {
+        $(".input").setValue(city);
+        $$(".search-item").shouldHave(CollectionCondition.sizeLessThanOrEqual(8));
+    }
 }
